@@ -1,0 +1,40 @@
+# InSpec test for recipe my_motd::default
+
+# The InSpec reference, with examples and extensive documentation, can be
+# found at https://www.inspec.io/docs/reference/resources/
+
+# check /etc/motd
+describe file('/etc/motd') do
+  its('content') { should match(%r{^Host manged by Chef\.$}) }
+  its('content') { should match(%r{.*10.0.2.15.*}) }
+  its('content') { should match(%r{.*default-.*}) }
+  its('content') { should match(%r{^Project: cg5labs$}) }
+  its('content') { should match(%r{^Owner: Chris Scheible$}) }
+end
+
+# check /etc/hosts
+describe file('/etc/hosts') do
+  its('content') { should match(%r{^192\.168\.17\.1(.*)pluto.cg5labs.ddns.net$}) }
+  its('content') { should match(%r{^10\.0\.2\.15(.*)default-(.*)}) }
+end
+
+# check package installed
+if os.family == 'debian'
+  describe package('apache2') do
+    it { should be_installed }
+  end
+end
+
+if os.family == 'redhat'
+  describe package('httpd') do
+    it { should be_installed }
+  end
+end
+
+# check firewall ports
+describe port(22) do
+      it { should be_listening }
+        its('processes') {should include 'sshd'}
+end
+
+
